@@ -1,16 +1,18 @@
-# project-template
+# planning-helper
 
-![Chat on Dicsord](./readme-files/discord_vector.svg)
 ![Built with Python](./readme-files/python_vector.svg)
-![Built with Node.js](./readme-files/node_vector.svg)
-![Built with Astro](./readme-files/astro_vector.svg)
-![Built with Tailwind CSS](./readme-files/tailwind_vector.svg)
 
-A template for projects with a README, the MIT license, and a few .gitignore files for some of our common languages.
+A Discord bot to help with planning in the News Fans planning server.
 
 ## Getting Started
 
-> Instructions go here.
+1. Clone the repository.
+2. (Optional) Create a virtual environment by running `python -m venv ./.venv/`.
+3. Run `python -m pip install -r requirements.txt` to install the required packages from PyPi.
+4. Modify `config/main.py` to fit your needs.
+5. Create `config/token.txt` with your bot's token **only**.
+5. Run `main.py` to run the bot.
+6. Enjoy!
 
 ## License
 
