@@ -18,7 +18,8 @@ class Poll(peewee.Model):
     creator_id: int = peewee.IntegerField()
     votes: str = peewee.CharField(max_length=999999) # dict
     status: PollStatus = peewee.IntegerField()
-    closesAt: int = peewee.IntegerField() # only required if timed
+    type: PollType = peewee.IntegerField()
+    closes_at: int = peewee.IntegerField() # only required if timed
 
     @staticmethod
     def votesToString(fromDict: dict):
@@ -30,12 +31,24 @@ class Poll(peewee.Model):
     
     @staticmethod
     # if type is timed and no end time is specified a TypeError will be raised.
-    def newPoll(messageId: int, creatorId: int, options: list, type: PollType, endsAt: Optional[int]):
+    def newPoll(channelId: int, messageId: int, creatorId: int, options: list, type: PollType, endsAt: Optional[int]):
         if type == PollType.normal or type == PollType.timed and endsAt is not None:
             optionsDict = {}
             for option in options:
                 optionsDict[option] = []
 
             pollId = ''.join(random.choices(string.ascii_letters + string.digits), k=10)
+
+            channelAndMessageId = f"{channelId}_{messageId}"
+
+            if type == PollType.timed:
+                status = PollStatus.timed
+            else:
+                status = PollStatus.open
+
+            try:
+                return Poll.create(poll_id=pollId, channel_and_message_id=channelAndMessageId, creator_id=creatorId, votes=optionsDict, status=status, type=type, closes_at=endsAt)
+            except peewee.IntegrityError: # raised when the poll_id is already taken
+                return None
         else:
             raise TypeError
