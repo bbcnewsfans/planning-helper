@@ -52,3 +52,19 @@ class Poll(peewee.Model):
                 return None
         else:
             raise TypeError
+
+    @staticmethod
+    # raises a TypeError if the specified poll id doesnt exist 
+    def addVote(pollId: str, option: str, userId: int):
+        try:
+            poll = Poll.get(Poll.poll_id == pollId)
+        except peewee.DoesNotExist: # called when something doesnt exist
+            raise TypeError
+        
+        votes = Poll.stringToVotes(poll.votes)
+
+        votes[option].append(userId)
+
+        poll.votes = Poll.votesToString(votes)
+
+        return option
