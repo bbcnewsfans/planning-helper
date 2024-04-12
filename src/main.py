@@ -1,42 +1,34 @@
-import discord
+import discord, logging, traceback
 from discord.ext import commands
-from discord import app_commands as appcmds
-
+from messageutils import autothread_from_message
+import config
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
-token = open('./src/tokens/discord.txt').read()
+planninghelperlog = logging.getLogger('discord.planninghelper')
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.display_name}')
-    return
+    planninghelperlog.info(f'Logged in as {bot.user.name}.')
 
-@commands.command(name = "sync-app-commands",
-                  description = "Syncs application commands.")
-@commands.guild_only()
-@commands.cooldown(1, 15, commands.BucketType.member)
-async def syncAppCommands(ctx:commands.Context):
-    if ctx.author.id == 1191850547138007132:
-        async with ctx.typing():
-            await bot.tree.sync()
-        await ctx.reply(content="Commands synced!", mention_author=False)
-        return
-    else:
-        await ctx.reply(content="You don't have the permissions to run this command.", mention_author=False)
-        return
+@bot.command()
+async def ping(ctx: commands.Context):
+    await ctx.send(content=f"My ping is {round(bot.latency * 1000)}ms!")
 
-@commands.command(name = "sync-db-tables",
-                  description = "Syncs databse tables.")
-@commands.guild_only()
-@commands.cooldown(1, 15, commands.BucketType.member)
-async def syncDbTables(ctx:commands.Context):
-    if ctx.author.id == 1191850547138007132:
-        # create tables
-        await ctx.reply(content="Commands synced!", mention_author=False)
-        return
-    else:
-        await ctx.reply(content="You don't have the permissions to run this command.", mention_author=False)
-        return
+async def publish_to_announcement_channel(message: discord.Message):
+    if message.guild.id == config.NewsFansHelper.AnnouncementRelay.from_server_id and message.channel.id == config.NewsFansHelper.AnnouncementRelay.from_channel_id: # log
+        send_to = discord.Webhook.from_url(url=config.NewsFansHelper.AnnouncementRelay.to_webhook_url, client=bot)
 
-bot.run(token)
+        files = []
+        for attachment in message.attachments:
+            await attachment.to_file()
+
+        await send_to.send(content=message.content, files=files)
+
+@bot.event
+async def on_message(message: discord.Message):
+    await autothread_from_message(message, planninghelperlog)
+    await publish_to_announcement_channel(message)
+    await bot.process_commands(message)
+
+bot.run(config.NewsFansHelper.token)
