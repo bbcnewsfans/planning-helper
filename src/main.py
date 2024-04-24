@@ -28,8 +28,10 @@ async def publish_to_announcement_channel(message: discord.Message):
 
 @bot.event
 async def on_message(message: discord.Message):
-    await autothread_from_message(message, planninghelperlog)
-    await publish_to_announcement_channel(message)
+    text_types = [discord.ChannelType.text, discord.ChannelType.news]
+    if message.channel.type in text_types:
+        await autothread_from_message(message, planninghelperlog)
+        await publish_to_announcement_channel(message)
     await bot.process_commands(message)
 
 bot.run(config.NewsFansHelper.token)
