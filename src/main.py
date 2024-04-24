@@ -21,9 +21,10 @@ async def publish_to_announcement_channel(message: discord.Message):
 
         files = []
         for attachment in message.attachments:
-            await attachment.to_file()
+            f = await attachment.to_file()
+            files.append(f)
 
-        await send_to.send(content=message.content, files=files)
+        await send_to.send(content=message.content + f"\n\n<@&{config.NewsFansHelper.AnnouncementRelay.ping_role_id}>", files=files)
 
 @bot.event
 async def on_message(message: discord.Message):
