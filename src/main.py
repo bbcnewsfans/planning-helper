@@ -17,7 +17,7 @@ async def ping(ctx: commands.Context):
 
 @bot.command()
 async def publish(ctx: commands.Context):
-    if bot.get_guild(config.NewsFansHelper.server_id).get_role(config.NewsFansHelper.board_role_id):
+    if bot.get_guild(config.NewsFansHelper.server_id).get_role(config.NewsFansHelper.board_role_id) in ctx.author.roles:
         if ctx.channel.type in [discord.ChannelType.news_thread, discord.ChannelType.public_thread, discord.ChannelType.private_thread] and ctx.channel.parent.id == config.NewsFansHelper.AnnouncementRelay.from_channel_id:
             send_to = discord.Webhook.from_url(url=config.NewsFansHelper.AnnouncementRelay.to_webhook_url, client=bot)
 
